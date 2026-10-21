@@ -36,6 +36,8 @@
             └─→ alarms：查询边缘检测项目的告警库与截图（SQLite）
 ```
 
+![架构图](docs/architecture.svg)
+
 ## 实测数据（板卡实测，非估算）
 
 | 指标 | 结果 | 说明 |
@@ -73,6 +75,42 @@ python -X utf8 -m unittest discover -s tests -v
 ```
 
 `config/mock.json` 只依赖标准库与 Pillow；没有模型时用 `mock` 后端验证业务流程、工具调用与告警查询。
+
+### 运行示例（真实输出）
+
+```text
+$ python -X utf8 -m edge_agent --config config/mock.json demo
+
+用户：你好
+助手：[模拟模式] 已收到：你好。当前用于验证交互流程，尚未运行真实语言模型。
+
+用户：查看设备状态
+助手：{
+  "os": "Windows",
+  "architecture": "AMD64",
+  "backend": "mock",
+  "model": "rkllm",
+  "ffmpeg_available": true,
+  "camera_config": "",
+  "sensors_started": false,
+  "board_model": null,
+  "memory_total_mib": null
+}
+
+用户：查询最近告警
+助手：项目一告警数据库尚未创建
+```
+
+```text
+$ python -X utf8 -m unittest discover -s tests
+
+............................................ssssss...
+----------------------------------------------------------------------
+Ran 53 tests in 5.312s
+
+OK (skipped=6)          # 6 项为仅在 Linux 上运行的用例（进程组 / g++ 编译租约测试）
+```
+
 
 ## 真机部署（需要模型）
 

@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="470" viewBox="0 0 960 470" font-family="'Segoe UI','Microsoft YaHei',Arial,sans-serif">
+  <rect width="960" height="470" fill="#ffffff"/>
+
+  <!-- 入口 -->
+  <rect x="30" y="40" width="170" height="52" rx="8" fill="#eef4ff" stroke="#4a7fd6" stroke-width="1.6"/>
+  <text x="115" y="62" text-anchor="middle" font-size="14" fill="#12305e">CLI</text>
+  <text x="115" y="80" text-anchor="middle" font-size="12" fill="#566b8a">命令行交互</text>
+
+  <rect x="30" y="112" width="170" height="52" rx="8" fill="#eef4ff" stroke="#4a7fd6" stroke-width="1.6"/>
+  <text x="115" y="134" text-anchor="middle" font-size="14" fill="#12305e">本地 GUI</text>
+  <text x="115" y="152" text-anchor="middle" font-size="12" fill="#566b8a">tkinter</text>
+
+  <!-- Agent -->
+  <rect x="250" y="76" width="190" height="92" rx="10" fill="#f4f9ef" stroke="#5f9e3b" stroke-width="1.8"/>
+  <text x="345" y="104" text-anchor="middle" font-size="15" font-weight="600" fill="#274a12">Agent</text>
+  <text x="345" y="126" text-anchor="middle" font-size="12" fill="#4d6b3a">会话编排 · 工具调用</text>
+  <text x="345" y="146" text-anchor="middle" font-size="12" fill="#4d6b3a">上下文裁剪 · 静音/取消</text>
+
+  <!-- Backend -->
+  <rect x="500" y="30" width="200" height="240" rx="10" fill="#fdf6ec" stroke="#c98a1f" stroke-width="1.8"/>
+  <text x="600" y="56" text-anchor="middle" font-size="15" font-weight="600" fill="#6b4600">Backend（可切换）</text>
+
+  <rect x="516" y="70" width="168" height="52" rx="7" fill="#ffffff" stroke="#d9a94a"/>
+  <text x="600" y="92" text-anchor="middle" font-size="13" fill="#6b4600">rkllm_native</text>
+  <text x="600" y="110" text-anchor="middle" font-size="11" fill="#8a6a33">板卡原生推理</text>
+
+  <rect x="516" y="130" width="168" height="52" rx="7" fill="#ffffff" stroke="#d9a94a"/>
+  <text x="600" y="152" text-anchor="middle" font-size="13" fill="#6b4600">http</text>
+  <text x="600" y="170" text-anchor="middle" font-size="11" fill="#8a6a33">本地模型服务</text>
+
+  <rect x="516" y="190" width="168" height="62" rx="7" fill="#e9f7ea" stroke="#3f9e4d" stroke-width="1.6"/>
+  <text x="600" y="212" text-anchor="middle" font-size="13" fill="#14521f">mock</text>
+  <text x="600" y="230" text-anchor="middle" font-size="11" fill="#2f6b3a">无模型即可运行</text>
+  <text x="600" y="246" text-anchor="middle" font-size="11" fill="#2f6b3a">（CI 使用此模式）</text>
+
+  <!-- native worker -->
+  <rect x="760" y="60" width="170" height="80" rx="10" fill="#f7f0f7" stroke="#8a5a9e" stroke-width="1.8"/>
+  <text x="845" y="86" text-anchor="middle" font-size="13" font-weight="600" fill="#431f4f">native worker</text>
+  <text x="845" y="106" text-anchor="middle" font-size="11" fill="#5f3f6b">子进程 · 超时回收</text>
+  <text x="845" y="124" text-anchor="middle" font-size="11" fill="#5f3f6b">NPU 会话租约</text>
+
+  <rect x="760" y="160" width="170" height="72" rx="10" fill="#f7f0f7" stroke="#8a5a9e" stroke-width="1.8"/>
+  <text x="845" y="186" text-anchor="middle" font-size="13" font-weight="600" fill="#431f4f">RKLLM / RKNN</text>
+  <text x="845" y="206" text-anchor="middle" font-size="11" fill="#5f3f6b">语言模型 + 视觉模型</text>
+  <text x="845" y="222" text-anchor="middle" font-size="11" fill="#5f3f6b">（模型不随仓库分发）</text>
+
+  <!-- voice -->
+  <rect x="250" y="250" width="190" height="76" rx="10" fill="#eaf6f8" stroke="#2f8fa3" stroke-width="1.8"/>
+  <text x="345" y="276" text-anchor="middle" font-size="13" font-weight="600" fill="#0d4550">ASR / TTS worker</text>
+  <text x="345" y="296" text-anchor="middle" font-size="11" fill="#1f6272">SenseVoice / Vosk</text>
+  <text x="345" y="314" text-anchor="middle" font-size="11" fill="#1f6272">Piper 合成</text>
+
+  <!-- alarms -->
+  <rect x="250" y="352" width="190" height="76" rx="10" fill="#f2f2f2" stroke="#777" stroke-width="1.6"/>
+  <text x="345" y="378" text-anchor="middle" font-size="13" font-weight="600" fill="#333">告警查询</text>
+  <text x="345" y="398" text-anchor="middle" font-size="11" fill="#555">SQLite 告警库</text>
+  <text x="345" y="416" text-anchor="middle" font-size="11" fill="#555">截图按事件 ID 关联</text>
+
+  <!-- arrows -->
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#555"/>
+    </marker>
+  </defs>
+
+  <line x1="200" y1="66" x2="246" y2="100" stroke="#555" stroke-width="1.5" marker-end="url(#a)"/>
+  <line x1="200" y1="138" x2="246" y2="132" stroke="#555" stroke-width="1.5" marker-end="url(#a)"/>
+
+  <line x1="440" y1="118" x2="496" y2="118" stroke="#555" stroke-width="1.5" marker-end="url(#a)"/>
+  <text x="468" y="110" text-anchor="middle" font-size="11" fill="#555">请求</text>
+
+  <line x1="700" y1="100" x2="756" y2="100" stroke="#555" stroke-width="1.5" marker-end="url(#a)"/>
+  <line x1="845" y1="140" x2="845" y2="156" stroke="#555" stroke-width="1.5" marker-end="url(#a)"/>
+
+  <line x1="300" y1="168" x2="300" y2="246" stroke="#555" stroke-width="1.5" marker-end="url(#a)"/>
+  <text x="262" y="212" text-anchor="middle" font-size="11" fill="#555">语音</text>
+
+  <line x1="345" y1="326" x2="345" y2="348" stroke="#555" stroke-width="1.5" marker-end="url(#a)"/>
+  <line x1="440" y1="390" x2="520" y2="300" stroke="#555" stroke-width="1.2" stroke-dasharray="5 4" marker-end="url(#a)"/>
+  <text x="500" y="352" text-anchor="middle" font-size="11" fill="#555">工具调用</text>
+</svg>
