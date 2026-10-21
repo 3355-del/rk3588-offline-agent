@@ -1,5 +1,7 @@
 # RK3588 离线端侧多模态智能体
 
+[![CI](https://github.com/3355-del/rk3588-offline-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/3355-del/rk3588-offline-agent/actions/workflows/ci.yml)
+
 在 RK3588（Orange Pi 5）板卡上**完全离线**运行的多模态助手：支持**文字、图片、语音**三种输入，本地完成语音识别、语言模型推理与语音合成，**不调用任何云端 API**；还能用自然语言查询另一个边缘检测项目的告警记录与截图。
 
 ## 它解决什么问题
