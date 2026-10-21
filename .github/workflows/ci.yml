@@ -10,9 +10,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-24.04, windows-latest]
-        python: ['3.12']
+        include:
+          # 目标运行环境是 Ubuntu（板卡为 Ubuntu 22.04 aarch64），作为必过项
+          - os: ubuntu-24.04
+            blocking: true
+          # GitHub 的 Windows runner 没有音频设备与传感器，
+          # 涉及语音/硬件枚举的用例在云端不可靠，因此记为“允许失败”
+          - os: windows-latest
+            blocking: false
     runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ !matrix.blocking }}
     env:
       PYTHONUTF8: '1'
     steps:
@@ -20,7 +27,7 @@ jobs:
 
       - uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python }}
+          python-version: '3.12'
           cache: pip
 
       - name: Install dependencies
