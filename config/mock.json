@@ -1,0 +1,21 @@
+{
+  "backend": "mock",
+  "server_url": "http://127.0.0.1:8080",
+  "model": "rkllm",
+  "supports_images": false,
+  "request_timeout": 45,
+  "max_tokens": 256,
+  "history_turns": 6,
+  "max_context_chars": 8000,
+  "input_limit_mb": 8,
+  "alarm_db": "../../项目-基于 RK3588 的多路边缘目标检测告警系统/data/alarms.sqlite3",
+  "input_dir": "../inputs",
+  "asr_model": "../models/vosk-cn",
+  "camera_linux": "/dev/video0",
+  "camera_windows": "",
+  "audio_linux": "default",
+  "audio_windows": "",
+  "capture_width": 640,
+  "capture_height": 480,
+  "audio_seconds": 5
+}

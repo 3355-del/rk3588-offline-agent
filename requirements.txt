@@ -1,0 +1,4 @@
+Pillow==11.3.0
+vosk==0.3.45
+imageio-ffmpeg==0.6.0; platform_system == "Windows"
+pyttsx3==2.99; platform_system == "Windows"

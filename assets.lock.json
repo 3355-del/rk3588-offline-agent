@@ -1,0 +1,60 @@
+{
+  "sources": "Qwen model hashes checked against official ModelScope metadata; llama zip against GitHub release digest; SDK against Git blob IDs. Vosk digest recorded from official HTTPS download.",
+  "assets": [
+    {
+      "path": "models/qwen3-vl-2b/qwen-q4.gguf",
+      "url": "https://modelscope.cn/models/Qwen/Qwen3-VL-2B-Instruct-GGUF/resolve/master/Qwen3VL-2B-Instruct-Q4_K_M.gguf",
+      "group": "desktop",
+      "size": 1107409952,
+      "sha256": "089d75c52f4b7ffc56ba998ffc50aae89fcafc755f9e7208aacca281dca6c2ae"
+    },
+    {
+      "path": "models/qwen3-vl-2b/qwen-mmproj.gguf",
+      "url": "https://modelscope.cn/models/Qwen/Qwen3-VL-2B-Instruct-GGUF/resolve/master/mmproj-Qwen3VL-2B-Instruct-Q8_0.gguf",
+      "group": "desktop",
+      "size": 445053216,
+      "sha256": "f9a68fabba69c3b81e153367b2c7521030b0fa8bb0de400c9599c8e6725f9c82"
+    },
+    {
+      "path": "runtime/llama-api.zip",
+      "url": "https://api.github.com/repos/ggml-org/llama.cpp/releases/assets/562950624",
+      "group": "desktop",
+      "size": 18426093,
+      "sha256": "9500c38f614a2971fd7142b0a7ca270a29e0f703e5a5904c2ae9e9f9b739060f",
+      "extract": "runtime/llama-b10952",
+      "headers": {
+        "Accept": "application/octet-stream"
+      }
+    },
+    {
+      "path": "models/vosk-cn.zip",
+      "url": "https://alphacephei.com/vosk/models/vosk-model-small-cn-0.22.zip",
+      "group": "voice",
+      "size": 43898754,
+      "sha256": "3af8b0e7e0f835ae9d414ce5df580237a3cfb08d586c9fbbb0f7ff29ad5b14ba",
+      "extract": "models"
+    },
+    {
+      "path": "native/lib/librknnrt.so",
+      "url": "https://raw.githubusercontent.com/airockchip/rknn-llm/878f9361fd3afa7e167b7079918918f78d2c1c2a/examples/multimodal_model_demo/deploy/3rdparty/librknnrt/Linux/librknn_api/aarch64/librknnrt.so",
+      "group": "sdk",
+      "size": 7726232,
+      "sha256": "d31fc19c85b85f6091b2bd0f6af9d962d5264a4e410bfb536402ec92bac738e8"
+    },
+    {
+      "path": "native/lib/librkllmrt.so",
+      "url": "https://raw.githubusercontent.com/airockchip/rknn-llm/878f9361fd3afa7e167b7079918918f78d2c1c2a/rkllm-runtime/Linux/librkllm_api/aarch64/librkllmrt.so",
+      "group": "sdk",
+      "size": 7617472,
+      "sha256": "6a9e4fc5324c68921c3a900340361e107af7599fe34dc8fa7759b2c5ae22a6e6"
+    },
+    {
+      "path": "runtime/llama-source.tar.gz",
+      "url": "https://api.github.com/repos/ggml-org/llama.cpp/tarball/661643e43079a4ee6faab4c1895291767b67ea8d",
+      "group": "source",
+      "size": 37420323,
+      "sha256": "3eee3bbd2a0910493e306cc582c1755a455d91384c1464099dc7802b37bb173d",
+      "extract_tar": "runtime/llama-source"
+    }
+  ]
+}

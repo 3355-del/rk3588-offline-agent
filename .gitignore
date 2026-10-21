@@ -1,0 +1,46 @@
+# 模型与权重（本仓库不分发）
+models/*
+!models/.gitkeep
+*.rkllm
+*.rknn
+*.onnx
+*.pt
+*.gguf
+
+# 运行时与第三方二进制
+runtime/
+native/lib/
+native/build/
+*.so
+*.so.*
+*.dll
+*.exe
+
+# 录音、图片与采集产物（可能含真人语音）
+inputs/*
+!inputs/.gitkeep
+*.wav
+*.mp3
+*.png
+*.jpg
+*.jpeg
+
+# 运行数据与日志
+data/*.log
+data/*.sqlite3*
+data/*.json
+*.log
+*.sqlite3
+*.db
+
+# Python
+.venv/
+.venv-linux/
+__pycache__/
+*.pyc
+
+# 编辑器
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,22 @@
+[
+  {
+    "path": "examples/multimodal_model_demo/deploy/3rdparty/librknnrt/Linux/librknn_api/aarch64/librknnrt.so",
+    "sha": "e53a2b6ec332f2863df5c70cd9f6ebec9dbef397",
+    "size": 7726232
+  },
+  {
+    "path": "examples/multimodal_model_demo/deploy/3rdparty/librknnrt/Linux/librknn_api/armhf/librknnrt.so",
+    "sha": "7187eabef19aeabec6d04b923d2de2df14b790e6",
+    "size": 4879384
+  },
+  {
+    "path": "rkllm-runtime/Linux/librkllm_api/aarch64/librkllmrt.so",
+    "sha": "34167b32f99cb7ab19e21fb579fb750d96b878f1",
+    "size": 7617472
+  },
+  {
+    "path": "rkllm-runtime/Linux/librkllm_api/armhf/librkllmrt.so",
+    "sha": "17c9063b46168c4e7d093d6fedb097874f92d076",
+    "size": 4756024
+  }
+]

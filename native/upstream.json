@@ -1,0 +1,40 @@
+{
+  "revision": "878f9361fd3afa7e167b7079918918f78d2c1c2a",
+  "files": [
+    {
+      "path": "examples/multimodal_model_demo/deploy/CMakeLists.txt",
+      "sha": "f0b47a34ff8ce4bfc82d52edec930d7ead8b1061",
+      "size": 2648
+    },
+    {
+      "path": "examples/multimodal_model_demo/deploy/src/image_enc.cc",
+      "sha": "b56b9445fd23cfdb325dae7be5b99f5e3383db9b",
+      "size": 6336
+    },
+    {
+      "path": "examples/multimodal_model_demo/deploy/src/image_enc.h",
+      "sha": "482751dc21a7f5c259cc4f837b2b8cd14d1a8336",
+      "size": 687
+    },
+    {
+      "path": "examples/multimodal_model_demo/deploy/src/img_encoder.cpp",
+      "sha": "a78cc9e496af8950f4fc318a0dad616fd737e1ad",
+      "size": 4598
+    },
+    {
+      "path": "examples/multimodal_model_demo/deploy/src/main.cpp",
+      "sha": "736d0162c4449cb859acff3fd3419109909b0eb0",
+      "size": 10222
+    },
+    {
+      "path": "rkllm-runtime/Android/librkllm_api/include/rkllm.h",
+      "sha": "c76346c7f7bcab9e8eb61e3f903ee93cdc03d236",
+      "size": 22925
+    },
+    {
+      "path": "rkllm-runtime/Linux/librkllm_api/include/rkllm.h",
+      "sha": "c76346c7f7bcab9e8eb61e3f903ee93cdc03d236",
+      "size": 22925
+    }
+  ]
+}
