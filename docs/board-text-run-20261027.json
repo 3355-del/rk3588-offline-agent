@@ -1,0 +1,22 @@
+{
+  "captured_at": "2026-10-27T15:16:47.075980+00:00",
+  "platform": "Orange Pi 5 / RK3588S",
+  "architecture": "aarch64",
+  "backend": "rkllm_native",
+  "model": "Qwen3-VL-2B-Instruct",
+  "results": [
+    {
+      "question": "请只用一句话解释什么是嵌入式Linux。",
+      "answer": "嵌入式Linux是一种专为小型设备或系统设计的Linux操作系统，通常用于资源受限但需要高性能和可靠性的场景。"
+    },
+    {
+      "question": "请只用一句话说明NPU的主要用途。",
+      "answer": "NPU（神经网络处理单元）主要用于加速人工智能模型的推理计算，特别是在深度学习任务中。"
+    }
+  ],
+  "native_worker_verified": true,
+  "worker_released": true,
+  "microphone_started": false,
+  "camera_started": false,
+  "speaker_used": false
+}
