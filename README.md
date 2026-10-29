@@ -4,15 +4,13 @@
 
 在 RK3588（Orange Pi 5）板卡上**完全离线**运行的多模态助手：支持**文字、图片、语音**三种输入，本地完成语音识别、语言模型推理与语音合成，**不调用任何云端 API**；还能用自然语言查询另一个边缘检测项目的告警记录与截图。
 
-## 板卡文字问答运行记录
+## 板卡原始 CLI 实时运行截图
 
-![项目二在Orange Pi 5上通过rkllm_native执行的两轮真实文字问答记录](docs/images/board-npu-text-run.jpg)
+![通过临时网页终端实时操作 Orange Pi 5 上原始 rkllm_native chat 命令的截图](docs/images/board-original-cli-20261030.jpg)
 
-2026-10-27 在开发板上通过项目的 `Agent.ask` 执行两轮文字问答，后端为 `rkllm_native`，模型为 Qwen3-VL-2B-Instruct；实际原生 worker 已核实运行，测试后正常退出释放。图中问题与回答保持原文，展示页用于整理本次运行记录，**不是项目原有 GUI 截图**。本次未启动麦克风、摄像头或扬声器，也不作为语音、视觉或整体准确率验收。
+2026-10-30 实际通过 SSH 执行 `bash scripts/run_linux.sh --npu chat`，在运行中的原始 CLI 输入问题，由板卡 `rkllm_native` 后端生成回答。截图来自临时网页终端：只转发原始进程的输入输出，**不是项目自带 GUI，也不是重新排版的问答记录页**。退出使用 `/quit`，已检查原生 worker 释放。本次没有使用麦克风和扬声器，不作为语音听感或全场景正确率验收。
 
-[查看运行记录图片](docs/images/board-npu-text-run.jpg)。
-
-见 [本次原始问答记录](docs/board-text-run-20261027.json)。板卡模型和依赖就绪后，可使用 `bash scripts/run_linux.sh --npu chat` 输入图中相同问题复核；模型生成结果可能随上下文和运行配置变化。
+问题为“请用一句话说明NPU的用途。”。见[本次运行说明](docs/board-run-20261030.md)。此前的[2026-10-27 问答记录](docs/board-text-run-20261027.json)与[旧整理图](docs/images/board-npu-text-run.jpg)只保留作历史记录。
 
 ## 图解：交互与双项目协作
 
