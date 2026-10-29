@@ -81,10 +81,13 @@
 | 板卡 | Orange Pi 5（RK3588S，**8 GB**） |
 | 系统 | Ubuntu 22.04.5 LTS（aarch64） |
 | 内核 | 6.1.99-rockchip-rk3588 |
-| RKLLM Runtime | 1.1.4 |
+| RKLLM Runtime | 1.3.0（2026-10-30 已部署库的 SDK 版本标识） |
 | rkllm-toolkit | 1.2.3 |
 | 模型规格 | max_context_limit 4096，npu_core_num 3，W8A8 |
-| Python | 3.12 |
+| Python | 3.10.12（板卡 `.venv-linux`；2026-10-30 核对） |
+
+
+以上运行库与 Python 为 2026-10-30 板卡现状核对；历史性能结果仍保留其原始测试条件，不能据此推断所有历史测试都使用此版本。
 
 ## 快速开始（不需要模型，也不需要板卡）
 
