@@ -4,7 +4,7 @@ ROOT=Path(__file__).resolve().parents[1]
 spec=importlib.util.spec_from_file_location('setup_assets',ROOT/'scripts/setup_assets.py');assets=importlib.util.module_from_spec(spec);spec.loader.exec_module(assets)
 class AssetTests(unittest.TestCase):
     def setUp(self):
-        self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup);self.root=Path(self.tmp.name)
+        self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup);self.root=Path(self.tmp.name).resolve()
         self.original=assets.ROOT;assets.ROOT=self.root;self.addCleanup(setattr,assets,'ROOT',self.original)
     def test_zip_traversal_refused(self):
         archive=self.root/'bad.zip'
