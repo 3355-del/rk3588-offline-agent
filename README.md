@@ -2,190 +2,147 @@
 
 [![CI](https://github.com/3355-del/rk3588-offline-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/3355-del/rk3588-offline-agent/actions/workflows/ci.yml)
 
-在 RK3588（Orange Pi 5）板卡上**完全离线**运行的多模态助手：支持**文字、图片、语音**三种输入，本地完成语音识别、语言模型推理与语音合成，**不调用任何云端 API**；还能用自然语言查询另一个边缘检测项目的告警记录与截图。
+一个跑在 Orange Pi 5 上的离线助手：可以打字问答、拍照提问、录音提问并播报回答，也能查[视频告警项目](https://github.com/3355-del/rk3588-multi-stream-alarm)的 SQLite 事件和对应截图。Python 负责业务与设备交互，C++ 接入 RKLLM、RKNN，模型在板卡本地运行。
 
-## 板卡原始 CLI 实时运行截图
+## 先看运行效果
 
-![通过临时网页终端实时操作 Orange Pi 5 上原始 rkllm_native chat 命令的截图](docs/images/board-original-cli-20261030.jpg)
+![板卡原始CLI使用rkllm_native回答问题](docs/images/board-original-cli-20261030.jpg)
 
-2026-10-30 实际通过 SSH 执行 `bash scripts/run_linux.sh --npu chat`，在运行中的原始 CLI 输入问题，由板卡 `rkllm_native` 后端生成回答。截图来自临时网页终端：只转发原始进程的输入输出，**不是项目自带 GUI，也不是重新排版的问答记录页**。退出使用 `/quit`，已检查原生 worker 释放。本次没有使用麦克风和扬声器，不作为语音听感或全场景正确率验收。
+这是执行 `bash scripts/run_linux.sh --npu chat` 后的原始 CLI。板卡没有显示器，截图时用了临时网页终端转发 SSH 输入输出。输入的问题是“请用一句话说明NPU的用途。”，退出命令是 `/quit`。[完整运行记录](docs/board-run-20261030.md)
 
-问题为“请用一句话说明NPU的用途。”。见[本次运行说明](docs/board-run-20261030.md)。此前的[2026-10-27 问答记录](docs/board-text-run-20261027.json)与[旧整理图](docs/images/board-npu-text-run.jpg)只保留作历史记录。
+## 日常怎么用
 
-## 图解：交互与双项目协作
+| 输入 | 处理过程 | 结果 |
+| --- | --- | --- |
+| 文字 | Agent 编排会话，调用语言后端或受控工具 | 文字回答、设备状态、告警查询 |
+| 图片 | 校验文件与目录，视觉编码后进入图文推理 | 图片描述或问答 |
+| 录音 | 录音、语音识别、生成回答、语音合成 | 文字和音频 |
+| 告警事件 ID | 只读查询 SQLite，校验截图路径 | 同一事件的记录与图片 |
 
-下面两张图按当前源码绘制，便于理解输入、处理和数据流；它们是**流程示意，不是真机界面截图**。原有性能记录与已知边界仍见下文。
+入口是 CLI 和本地 GUI。普通对话走模型；设备状态和部分告警查询可直接走工具。语音识别接 SenseVoice 或 Vosk，播报接 Piper。后端也保留本地 HTTP 服务和 `mock`，便于先排查业务流程。
 
-### 从输入到回答
+![交互流程](docs/images/interaction-flow.png)
 
-![离线助手交互流程：文字和图片、语音识别进入 Agent，会话编排后调用后端或受控工具，输出文字并可通过 Piper 播报](docs/images/interaction-flow.png)
+业务代码从 [agent.py](edge_agent/agent.py) 看起；语音编排在 [voice_worker.py](edge_agent/voice_worker.py)，告警读取在 [alarms.py](edge_agent/alarms.py)。
 
-普通问答由后端处理；设备状态和部分告警查询可以走直接工具路径。图片先检查目录、格式和大小，语音需安装对应识别与合成组件。不同后端能力以实际配置为准，mock 不代表运行了真实模型。源码：[会话编排](edge_agent/agent.py)、[语音工作进程](edge_agent/voice_worker.py)。
+## 和视频告警项目如何配合
 
-### 与检测系统共享告警信息
+检测程序负责写入事件和截图，这个项目读取同一数据库。用户输入事件 ID 后，按 ID 查询记录，再从允许的截图目录取图。配置时需要把两边的数据路径接到一起。
 
-![两个项目协作示意：检测系统写入 SQLite 和本地截图，离线助手通过受控工具读取；同板卡需遵守 NPU 租约](docs/images/project-cooperation.png)
+![两个项目共享告警数据](docs/images/project-cooperation.png)
 
-检测系统负责产生事件，助手负责按条件查询事件并关联截图。使用前需配置同一告警库和截图路径；SQLite 使用只读连接，截图读取受目录边界与大小限制。两者的 NPU 同时运行安全性并未得到保证，已有 CPU/NPU 分工方案。源码：[告警查询与截图读取](edge_agent/alarms.py)；配套项目：[多路检测告警系统](https://github.com/3355-del/rk3588-multi-stream-alarm)。
+部署时采用两种方式：本项目单独用 NPU；或者检测项目用 NPU、本项目用 CPU。启动前通过跨进程租约协调资源，锁跟随模型上下文持有，进程退出时释放。
 
-## 它解决什么问题
+## 排查记录
 
-- **隐私不出设备**：录音、图片、对话全部在板卡本地处理，不上传云端
-- **无网可用**：弱网、断网、内网环境同样能跑
-- **无按次费用**：不消耗云端 token/API 额度
-- **打通两个系统**：车 / 园区监控只报警不够，这里可以用"今天有没有人闯入"这类自然语言直接查告警库并调出截图
+### 常驻模型解决了重复加载
 
-## 主要功能
+对照过逐次加载和会话内常驻两条路径。固定输入、输出上限 64 Token，去掉首轮后取三次中位数：文字请求从 3.668 s 降到 0.489 s，图片请求从 9.456 s 降到 4.399 s。
 
-- **三种交互入口**：命令行与本地 GUI；文本问答、图片问答（视觉模型）、语音问答（识别 → 推理 → 播报）
-- **模型常驻复用**：会话进程内复用模型，避免逐次加载；超时/取消后回收子进程并按需重建
-- **离线语音链路**：SenseVoice / Vosk 识别 + Piper 合成，串联录音、识别、生成、播放；含静音保护与重录流程
-- **告警联动**：按事件 ID 关联告警库与截图，支持自然语言查询
-- **NPU 资源保护**：跨进程会话租约，在 SDK 初始化前拒绝冲突并提示 CPU 回退，避免与同板卡其它 NPU 任务互相打崩
-- **可无模型运行**：内置 `mock` 后端，在没有模型、没有板卡的机器上也能跑通完整交互链路（CI 即用此模式）
+现在同一会话复用模型；退出时释放。取消或超时后回收子进程，下次请求重新加载。相应处理在 Python 后端与 native worker 之间，测试还会检查子进程能否退出。
 
-## 架构
+### 双 NPU 会话冲突后，锁改为覆盖模型生命周期
 
-```
-            ┌─────────────── CLI / 本地 GUI ───────────────┐
-            │                                              │
-            ▼                                              ▼
-   Agent（工具调用 / 会话编排）                    ASR / TTS worker
-            │                                      （SenseVoice / Vosk / Piper）
-            ▼
-   Backend  ┬─ rkllm_native  → native worker → RKLLM（语言）+ RKNN（视觉）
-            ├─ http           → 本地 llama.cpp / 兼容 OpenAI 接口的服务
-            └─ mock           → 桩实现（无模型，CI 与本地演示用）
-            │
-            └─→ alarms：查询边缘检测项目的告警库与截图（SQLite）
+两个项目同时持有 NPU 模型时，板卡出现过推理超时、IOMMU 域切换错误和 DMA 分配问题。尝试过请求级串行，仍然失败。随后改成在 SDK 初始化前检查会话租约：检测项目共享锁，助手 NPU 会话独占锁；冲突时提示先关闭另一个会话或切换 CPU。
+
+现有复现、日志线索和运行方式放在[共存说明](docs/双项目共存与NPU冲突说明-20261003.md)。这个保护只协调接入租约的进程。
+
+### Windows 上两项资产保护测试失败
+
+测试替换了项目根目录，但临时根没有 `resolve()`；待检查的路径已经规范化，两边比较时提前触发目录越界检查，导致测试没有走到“已有文件不可覆盖”的分支。修正测试临时根后，Ubuntu 和 Windows CI 都通过，生产路径保护没有放宽。[改动位置](tests/test_assets.py)
+
+另外核对部署环境时，发现 README 的 Runtime 1.1.4、Python 3.12 与实际板卡不符。读取已部署库的 SDK 标识和虚拟环境版本后，改为 RKLLM 1.3.0、Python 3.10.12。
+
+## 测试结果
+
+| 测试 | 结果 | 条件 |
+| --- | --- | --- |
+| 会话常驻：文字 | 3.668 s → 0.489 s | 固定输入、64 Token 上限，去掉首轮后三次中位数 |
+| 会话常驻：图片 | 9.456 s → 4.399 s | 同上 |
+| NPU 独占长稳 | 约 1 小时，3345 次请求，`errors=[]` | 3010 次文字、335 次视觉；RSS 3.07–3.08 GiB，温度峰值 55.5°C |
+| 与检测项目共存 | 3612 s，1051 次请求无错误 | 助手走 CPU，检测走 NPU |
+| Windows 本机单元测试 | 53 项，47 通过、6 跳过 | Linux 专用用例在 Windows 跳过 |
+
+当前 [CI](https://github.com/3355-del/rk3588-offline-agent/actions/workflows/ci.yml)同时检查 Ubuntu 24.04 和 Windows。
+
+## 代码结构
+
+```text
+CLI / 本地 GUI
+  ├─ Agent：会话、工具调用、文件检查
+  ├─ ASR / TTS worker：SenseVoice、Vosk、Piper
+  └─ Backend
+       ├─ rkllm_native → C++ worker → RKLLM（语言）+ RKNN（视觉）
+       ├─ http         → 本地 llama.cpp 等兼容服务
+       └─ mock         → 无模型的流程演示
+
+alarms → 只读 SQLite + 受目录限制的截图读取
 ```
 
 ![架构图](docs/architecture.png)
 
-## 实测数据（板卡实测，非估算）
+| 目录 | 内容 |
+| --- | --- |
+| `edge_agent/` | Python 业务层、后端适配、语音和 GUI |
+| `native/` | C++ 推理适配与 NPU 租约 |
+| `scripts/` | 部署、自检、模型安装和长稳测试 |
+| `tests/` | 无模型回归测试 |
+| `config/` | mock、CPU 和板卡示例配置 |
+| `docs/` | 启动手册、排查及验证记录 |
 
-| 指标 | 结果 | 说明 |
-|---|---|---|
-| 文本请求耗时 | **3.668 s → 0.489 s** | 模型逐次加载 → 会话内常驻复用；固定输入、64 Token 上限、去掉首轮后取 3 次中位数 |
-| 图片问答耗时 | **9.456 s → 4.399 s** | 同上对照 |
-| NPU 独占长稳 | **约 1 小时 / 3345 次请求**（3010 文本 + 335 视觉），`errors=[]` | RSS 3.07–3.08 GiB，温度峰值 55.5 °C，模型按预期回收 |
-| 与另一项目共存 | 约 1 小时（3612 s），**1051 次请求无错误** | 本项目走 CPU、另一项目用 NPU |
-| 本机单元测试 | **53 项：47 项通过、6 项按平台跳过** | 下方记录为 `Ran 53 tests`、`OK (skipped=6)`；跳过项不计为通过 |
+## 在电脑上先跑起来
 
-> 说明：上述耗时为特定输入下的请求耗时，不代表通用生成速度；长稳测试不含外设持续采集。
-
-## 运行环境
-
-| 项 | 版本 |
-|---|---|
-| 板卡 | Orange Pi 5（RK3588S，**8 GB**） |
-| 系统 | Ubuntu 22.04.5 LTS（aarch64） |
-| 内核 | 6.1.99-rockchip-rk3588 |
-| RKLLM Runtime | 1.3.0（2026-10-30 已部署库的 SDK 版本标识） |
-| rkllm-toolkit | 1.2.3 |
-| 模型规格 | max_context_limit 4096，npu_core_num 3，W8A8 |
-| Python | 3.10.12（板卡 `.venv-linux`；2026-10-30 核对） |
-
-
-以上运行库与 Python 为 2026-10-30 板卡现状核对；历史性能结果仍保留其原始测试条件，不能据此推断所有历史测试都使用此版本。
-
-## 快速开始（不需要模型，也不需要板卡）
-
-```bash
+```sh
 python -m pip install -r requirements.txt
-
-# 交互式演示（mock 后端，纯本地桩实现）
 python -X utf8 -m edge_agent --config config/mock.json demo
-
-# 单元测试
 python -X utf8 -m unittest discover -s tests -v
 ```
 
-`config/mock.json` 只依赖标准库与 Pillow；没有模型时用 `mock` 后端验证业务流程、工具调用与告警查询。
+这个入口运行 `mock` 后端。例如输入“你好”，会返回带有“模拟模式”标记的回复；输入“查看设备状态”会读取当前运行电脑的本地状态。接板卡之前可以用它检查配置、工具调用和告警库路径。
 
-### 运行示例（真实输出）
+## 部署到板卡
 
-```text
-$ python -X utf8 -m edge_agent --config config/mock.json demo
+当前部署环境：
 
-用户：你好
-助手：[模拟模式] 已收到：你好。当前用于验证交互流程，尚未运行真实语言模型。
+| 项目 | 版本或配置 |
+| --- | --- |
+| 板卡 | Orange Pi 5，RK3588S，8 GB |
+| 系统 | Ubuntu 22.04.5 LTS，aarch64 |
+| 内核 | 6.1.99-rockchip-rk3588 |
+| RKLLM Runtime | 1.3.0，2026-10-30 读取部署库标识 |
+| rkllm-toolkit | 1.2.3 |
+| 模型配置 | W8A8，max_context_limit 4096，npu_core_num 3 |
+| Python | 3.10.12，板卡 `.venv-linux` |
 
-用户：查看设备状态
-助手：{
-  "os": "Windows",
-  "architecture": "AMD64",
-  "backend": "mock",
-  "model": "rkllm",
-  "ffmpeg_available": true,
-  "camera_config": "",
-  "sensors_started": false,
-  "board_model": null,
-  "memory_total_mib": null
-}
+准备以下资产，路径与配置保持一致：
 
-用户：查询最近告警
-助手：项目一告警数据库尚未创建
-```
-
-```text
-$ python -X utf8 -m unittest discover -s tests
-
-............................................ssssss...
-----------------------------------------------------------------------
-Ran 53 tests in 5.312s
-
-OK (skipped=6)          # 6 项为仅在 Linux 上运行的用例（进程组 / g++ 编译租约测试）
-```
-
-
-## 真机部署（需要模型）
-
-本仓库**不包含模型文件**，需自行准备并放到 `models/`：
-
-| 用途 | 期望文件 |
-|---|---|
-| 语言模型 | RKLLM 格式（如 `models/rk3588/llm.rkllm`） |
-| 视觉模型 | RKNN 格式（如 `models/rk3588/vision.rknn`） |
-| 语音识别 | Vosk 中文小模型 / SenseVoice 模型目录 |
+| 用途 | 文件位置示例 |
+| --- | --- |
+| 语言模型 | `models/rk3588/llm.rkllm` |
+| 视觉模型 | `models/rk3588/vision.rknn` |
+| 语音识别 | Vosk 中文模型或 SenseVoice 模型目录 |
 | 语音合成 | Piper 语音包 |
+| 原生运行库 | `native/lib/librkllmrt.so`、`native/lib/librknnrt.so` |
 
-步骤概要：
+在 ARM64 Linux 板卡上执行：
 
-```bash
-# 1) 原生层编译（需自行获取 librkllmrt.so / librknnrt.so，仓库不提供二进制）
+```sh
 cmake -S native -B native/build -DCMAKE_BUILD_TYPE=Release
 cmake --build native/build -j"$(nproc)"
-
-# 2) 按需修改配置中的模型路径与后端
-#    config/rk3588-native.json（板卡原生推理）
-#    config/linux-cpu.json（先用 CPU 跑通链路）
-
-# 3) 启动
+# 修改 config/rk3588-native.json 中的模型和设备路径
 python -X utf8 -m edge_agent --config config/rk3588-native.json chat
 ```
 
-`scripts/` 下提供部署与校验脚本：`bootstrap_linux.sh`、`setup_sensevoice.py`、`setup_piper.py`、`check_npu_board.py`、`check_joint_soak.py` 等。
-
-## 已知边界（请先读这一节）
-
-- **使用已导出的模型**，未自行做量化/转换流程
-- **语音识别存在漏词**：用固定原录音复现，靠更换识别后端与静音保护缓解，未彻底解决
-- **双 NPU 并行冲突的根因未定位**：只实现了跨进程互斥/租约来避免已知冲突
-- **长稳测试不含外设持续采集**（不含长时间麦克风/摄像头采集）
-- 本仓库**不含任何模型权重、录音与日志**；`data/` 与 `inputs/` 需自行生成
-
-## 目录结构
-
-```
-edge_agent/     Python 业务层：会话编排、工具调用、后端适配、语音、告警查询、GUI
-native/         C++ 原生推理层（RKLLM / RKNN），不含厂商二进制
-scripts/        部署、校验、长稳与压测脚本
-tests/          单元测试（53 项，可在无模型环境运行）
-config/         示例配置（mock / linux-cpu / rk3588 / rk3588-native）
-docs/           部署与验收记录、问题排查、共存说明
-```
+`scripts/bootstrap_linux.sh` 准备环境；`setup_sensevoice.py`、`setup_piper.py` 安装语音组件；`check_npu_board.py` 和 `check_joint_soak.py` 做板卡与共存验证。逐步操作见[启动手册](docs/操作手册-启动与板卡交互.md)。
 
 ## 许可
 
-MIT，见 [LICENSE](LICENSE)。`native/rkllm.h`、`native/rknn_api.h` 来自 Rockchip SDK，版权归 Rockchip 所有；模型权重不随仓库分发，各模型遵循其原始许可。
+自有代码使用 [MIT](LICENSE)。`native/rkllm.h`、`native/rknn_api.h` 来自 Rockchip SDK，版权归 Rockchip 所有；模型与运行库按各自许可使用。
+
+## 还没解决的部分
+
+- 双 NPU 并行冲突的根因没有定位。当前会话租约用于拒绝已知冲突组合，能稳定运行的共存方式是 CPU/NPU 分工。
+- 语音识别仍有漏词和同音字错误；换后端与静音保护缓解了部分情况。最新截图只验证文本 NPU 问答，本轮语音听感验收暂缓；长稳数据也不包含外设持续采集。
+- 使用的是已导出的模型，未自行完成模型量化转换；仓库不提供权重、运行库、原始录音或日志，`data/`、`inputs/` 由运行时生成。
+- 延迟和长稳结果对应固定输入与当时的模型、运行环境，不代表任意问题的生成速度或回答正确率。表内 Runtime、Python 是当前部署版本，历史测试沿用其原记录条件。
+- 顶部截图来自临时网页终端，其余三张是流程图；仓库自身的交互入口是 CLI 和本地 GUI。
