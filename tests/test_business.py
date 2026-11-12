@@ -47,7 +47,9 @@ class BusinessTests(unittest.TestCase):
             for event, stamp in [('yesterday', start-1), ('today', start), ('tomorrow', end)]:
                 payload = {'timestamp_ms': stamp, 'stream_id': 1, 'track_id': 12}
                 db.execute('INSERT INTO alarms(event_id,payload) VALUES(?,?)', (event, json.dumps(payload)))
-        agent = Agent(self.c)
+        def fail_if_model_starts(_):
+            self.fail('local alarm query attempted to start the model')
+        agent = Agent(self.c, prepare_model=fail_if_model_starts)
         with patch.object(agent.backend, 'complete', side_effect=AssertionError('model called')):
             reply = agent.ask('今天有告警吗？')
         self.assertIn('目标 #12', reply)
@@ -55,6 +57,18 @@ class BusinessTests(unittest.TestCase):
         self.assertNotIn('yesterday', reply)
         self.assertNotIn('tomorrow', reply)
         self.assertEqual(execute('recent_alarms', {}, self.c)['alarms'][0]['event']['track_id'], 12)
+        config = dict(self.c, backend='rkllm_http',
+                      llama_executable=str(self.root/'unavailable-llama-server'),
+                      gguf_model=str(self.root/'unavailable-model'),
+                      gguf_projector=str(self.root/'unavailable-projector'))
+        path = self.root/'cli.json'
+        path.write_text(json.dumps(config), encoding='utf-8')
+        reply = subprocess.check_output(
+            [sys.executable, '-B', '-X', 'utf8', '-m', 'edge_agent', '--config',
+             str(path), 'ask', '今天有告警吗？'],
+            cwd=Path(__file__).resolve().parents[1], encoding='utf-8', timeout=10,
+        )
+        self.assertIn('事件ID today', reply)
 
     def test_capture_error_removes_partial_file(self):
         from edge_agent.devices import capture

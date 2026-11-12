@@ -16,11 +16,11 @@ def main():
     p=sub.add_parser('transcribe');p.add_argument('path')
     p=sub.add_parser('speak');p.add_argument('text')
     p=sub.add_parser('voice-once');p.add_argument('--confirm',action='store_true',help='识别后确认、改正或重录再回答')
-    args=parser.parse_args();config=load(args.config);agent=Agent(config)
+    args=parser.parse_args();config=load(args.config)
     from .runtime import LocalServer
     server=LocalServer(config)
+    agent=Agent(config,prepare_model=server.start)
     try:
-        if args.command in ('ask','chat','demo','voice-once','console'):server.start()
         return dispatch(args,config,agent)
     finally:agent.close();server.close()
 
