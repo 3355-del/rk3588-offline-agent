@@ -1,5 +1,6 @@
 import unittest,tempfile,sys,threading,time,json,sqlite3,subprocess
 from pathlib import Path
+from datetime import datetime, time as day_time, timedelta
 from contextlib import closing
 from unittest.mock import patch
 from edge_agent.config import load
@@ -36,6 +37,25 @@ class BusinessTests(unittest.TestCase):
         rows=query(self.c,3,stream_id=0,since_ms=20)['alarms'];self.assertEqual([r['event_id'] for r in rows],['28','26','24'])
         dest,_=snapshot(self.c,'1');self.assertTrue(dest.is_file())
         with self.assertRaises(ValueError):snapshot(self.c,'bad')
+    def test_today_uses_local_date_and_retains_track_ids(self):
+        from edge_agent.tools import execute
+        day = datetime.now().date()
+        start = int(datetime.combine(day, day_time.min).timestamp() * 1000)
+        end = int(datetime.combine(day + timedelta(days=1), day_time.min).timestamp() * 1000)
+        with closing(sqlite3.connect(self.c['alarm_db'])) as db, db:
+            db.execute('CREATE TABLE alarms(id INTEGER PRIMARY KEY,event_id TEXT,payload TEXT,received_at TEXT)')
+            for event, stamp in [('yesterday', start-1), ('today', start), ('tomorrow', end)]:
+                payload = {'timestamp_ms': stamp, 'stream_id': 1, 'track_id': 12}
+                db.execute('INSERT INTO alarms(event_id,payload) VALUES(?,?)', (event, json.dumps(payload)))
+        agent = Agent(self.c)
+        with patch.object(agent.backend, 'complete', side_effect=AssertionError('model called')):
+            reply = agent.ask('今天有告警吗？')
+        self.assertIn('目标 #12', reply)
+        self.assertIn('事件ID today', reply)
+        self.assertNotIn('yesterday', reply)
+        self.assertNotIn('tomorrow', reply)
+        self.assertEqual(execute('recent_alarms', {}, self.c)['alarms'][0]['event']['track_id'], 12)
+
     def test_capture_error_removes_partial_file(self):
         from edge_agent.devices import capture
         c=dict(self.c,camera_windows='test camera',camera_linux='/dev/test')

@@ -28,6 +28,17 @@ class Agent:
             if not image and re.fullmatch(r'(你好)?(请|帮我|请帮我)?(查看|查询|检查|看看)?(最近)?(告警|报警)',command):
                 from .alarms import query,readable
                 return readable(query(self.config))
+            if not image and re.fullmatch(
+                r'(请|帮我|请帮我)?(查看|查询|检查|看看)?(今天|今日)(有没有|有|的)?(告警|报警)(吗|记录)?',
+                command,
+            ):
+                from .alarms import today,readable
+                result = today(self.config)
+                if not result['available']:
+                    return readable(result)
+                if not result['alarms']:
+                    return '按开发板系统时间，今天没有已入库的告警。'
+                return '今天已入库的告警（最多显示最近 10 条）：\n'+readable(result)
             content=text
             if image:
                 p=Path(image).resolve();root=Path(self.config['input_dir']).resolve()

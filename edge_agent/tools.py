@@ -1,7 +1,7 @@
 """Allowlisted read-only tools. Models cannot execute shell commands or pick paths."""
-import json,platform,shutil,sqlite3
+import platform
 from pathlib import Path
-from contextlib import closing
+from .alarms import query
 TOOLS=[{'type':'function','function':{'name':'device_status','description':'查询本地运行环境及配置；不启动传感器。','parameters':{'type':'object','properties':{},'additionalProperties':False}}}, {'type':'function','function':{'name':'recent_alarms','description':'读取项目一已落库的最近告警。','parameters':{'type':'object','properties':{'limit':{'type':'integer','minimum':1,'maximum':20}},'additionalProperties':False}}}]
 
 def system_hardware():
@@ -26,9 +26,9 @@ def execute(name,args,c):
         if set(args)-{'limit'}:raise ValueError('unexpected alarm query argument')
         limit=args.get('limit',5)
         if type(limit)is not int or not 1<=limit<=20:raise ValueError('limit must be 1..20')
-        path=Path(c['alarm_db'])
-        if not path.is_file():return {'available':False,'reason':'项目一告警数据库尚未创建','alarms':[]}
-        with closing(sqlite3.connect(path.as_uri()+'?mode=ro',uri=True,timeout=2)) as db:
-            rows=db.execute('SELECT event_id,payload,received_at FROM alarms ORDER BY id DESC LIMIT ?',(limit,)).fetchall()
-        return {'available':True,'alarms':[{'event_id':eid,'received_at':stamp,'event':{k:v for k,v in json.loads(payload).items() if k in ('timestamp_ms','stream_id','region_id','class_name','confidence','screenshot')}} for eid,payload,stamp in rows]}
+        result = query(c, limit)
+        fields = ('timestamp_ms','stream_id','region_id','class_name','confidence','screenshot','track_id')
+        for row in result['alarms']:
+            row['event'] = {key: value for key, value in row['event'].items() if key in fields}
+        return result
     raise ValueError('tool not allowed: '+str(name))
