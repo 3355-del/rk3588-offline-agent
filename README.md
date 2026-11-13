@@ -150,3 +150,7 @@ python -X utf8 -m edge_agent --config config/rk3588-native.json chat
 ### 按日期查询告警
 
 输入「今天有告警吗」，程序按开发板的本地日期直接读取项目一的 SQLite 告警库，最多展示今天最近入库的 10 条事件。记录包含目标编号时，查询结果一并显示。告警库无法读取时会明确提示。
+
+### 终端代码入口
+
+edge_agent/__main__.py 解析命令并管理模型生命周期。edge_agent/terminal.py 负责板卡菜单、终端聊天和语音确认。

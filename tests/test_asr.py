@@ -78,9 +78,9 @@ class AsrTests(unittest.TestCase):
 
     def voice(self, replies, transcripts, confirm=True):
         agent=Mock();agent.ask.return_value='answer'
-        with patch('edge_agent.__main__.capture',return_value='unused.wav') as capture, \
-             patch('edge_agent.__main__.transcribe',side_effect=transcripts), \
-             patch('edge_agent.__main__.speak') as speak, \
+        with patch('edge_agent.terminal.capture',return_value='unused.wav') as capture, \
+             patch('edge_agent.terminal.transcribe',side_effect=transcripts), \
+             patch('edge_agent.terminal.speak') as speak, \
              patch('builtins.input',side_effect=replies), contextlib.redirect_stdout(io.StringIO()):
             dispatch(SimpleNamespace(command='voice-once',confirm=confirm),self.config,agent)
         return agent,capture,speak
